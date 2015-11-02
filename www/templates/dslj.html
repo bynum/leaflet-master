@@ -1,6 +1,35 @@
 <ion-view view-title="Playlist">
-  
-  <ion-content>
-    <leaflet id="mymap" lf-center="guizhou" geojson="geojson" defaults="defaults" width="100%" height="800px"></leaflet>
+
+  <ion-content scroll="false">
+    <leaflet id="mymap" lf-center="guizhou" geojson="geojson" defaults="defaults" width="100%" height="700px"></leaflet>
   </ion-content>
+  <ion-footer-bar class="bar-balanced">
+    <div class="buttons" ng-click="doSomething()">
+      <button class="button">Left Button</button>
+    </div>
+    <div class="buttons">
+      <button class="button button">Left Button</button>
+    </div>
+    <div class="buttons" ng-click="doSomething()">
+      <button class="button">Right Button</button>
+    </div>
+    <div class="buttons">
+      <button class="button">Left Button</button>
+    </div>
+    <div class="buttons">
+      <button class="button">Left Button</button>
+    </div>
+    <div class="buttons" ng-click="doSomething()">
+      <button class="button">Right Button</button>
+    </div>
+    <div class="buttons">
+      <button class="button">Left Button</button>
+    </div>
+    <div class="buttons">
+      <button class="button">Left Button</button>
+    </div>
+    <div class="buttons" ng-click="doSomething()">
+      <button class="button">Right Button</button>
+    </div>
+  </ion-footer-bar>
 </ion-view>

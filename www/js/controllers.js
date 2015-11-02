@@ -42,34 +42,8 @@ angular.module('starter.controllers', ["leaflet-directive"])
   })
 
   .controller('DsljCtrl', ['$scope', '$http', 'leafletData', '$stateParams', function ($scope, $http, leafletData, $stateParams) {
-
     var markers = [];
-    function onEachFeature(feature, layer, map) {
-
-      var icon = new L.TextIcon(
-        {
-          temperature: feature.properties.temperature,
-          rH: feature.properties.rH,
-          color: 'red',
-          windNum: parseInt((feature.properties.windPower - 0.01) / 2),
-          windDirection: feature.properties.windDirection
-        }
-        );
-      var marker = L.marker(feature.geometry.coordinates.reverse(), { icon: icon }).addTo(map);
-      markers.push(marker);
-      //marker.options.icon.removeElement("rHDiv");
-            
-      var popupContent = "<p>I started out as a GeoJSON " +
-        feature.geometry.type + ", but now I'm a Leaflet vector!</p>";
-
-      if (feature.properties && feature.properties.popupContent) {
-        popupContent += feature.properties.popupContent;
-      }
-      layer.bindPopup(popupContent);
-    }
-
-
-
+    var circles = [];
     angular.extend($scope, {
       guizhou: {
         lat: 27,
@@ -104,37 +78,42 @@ angular.module('starter.controllers', ["leaflet-directive"])
         }
       });
     });
+    function getCurrentTime() {
+      var date = new Date();
+      date.AddHours(-8);
+      return date.Format("yyyyMMddhh") + "0000";
+    }
     leafletData.getMap('mymap').then(function (map) {
-      console.log("123");
-      L.geoJson([bicycleRental], {
-        style: function (feature) {
-          return feature.properties && feature.properties.style;
-        },
-        onEachFeature: function (feature, layer) {
 
+      $http.jsonp("http://10.203.89.55/cimiss-web/api", {
+        params: {
+          userId: 'user_gzqxt',
+          pwd: 'user_gzqxt_api1',
+          times: getCurrentTime(),
+          interfaceId: 'getSurfEleInRegionByTime',
+          dataCode: 'SURF_CHN_MUL_HOR',
+          elements: 'Station_ID_C,Lon,Lat,TEM,pre_1h,prs,rhu,vis,WIN_S_Avg_2mi,WIN_D_Avg_2mi',
+          AdminCodes: '520000',
+          staLevels: '011,012,013',
+          callbackName: 'JSON_CALLBACK',
+          dataFormat: 'jsonp'
+        }
+      }).success(function (data) {
+        console.log();
+        for (var i = 0; i < data.rowCount; i++) {
           var icon = new L.TextIcon(
             {
-              temperature: feature.properties.temperature,
-              rH: feature.properties.rH,
+              temperature: data.DS[i].TEM,
+              rH: data.DS[i].rhu,
               color: 'red',
-              windNum: parseInt((feature.properties.windPower - 0.01) / 2),
-              windDirection: feature.properties.windDirection
+              windNum: parseInt((data.DS[i].WIN_S_Avg_2mi - 0.01) / 2),
+              windDirection: data.DS[i].WIN_D_Avg_2mi
             }
             );
-          var marker = L.marker(feature.geometry.coordinates.reverse(), { icon: icon }).addTo(map);
+          var marker = L.marker([data.DS[i].Lat, data.DS[i].Lon], { icon: icon });
           markers.push(marker);
-          //marker.options.icon.removeElement("rHDiv");
-            
-          var popupContent = "<p>I started out as a GeoJSON " +
-            feature.geometry.type + ", but now I'm a Leaflet vector!</p>";
-
-          if (feature.properties && feature.properties.popupContent) {
-            popupContent += feature.properties.popupContent;
-          }
-          layer.bindPopup(popupContent);
-        },
-        pointToLayer: function (feature, latlng) {
-          return L.circleMarker(latlng, {
+          map.addLayer(marker);
+          var circle = L.circleMarker([data.DS[i].Lat, data.DS[i].Lon], {
             radius: 4,
             fillColor: "#ff7800",
             color: "#000",
@@ -142,7 +121,39 @@ angular.module('starter.controllers', ["leaflet-directive"])
             opacity: 1,
             fillOpacity: 0.8
           });
+          circles.push(circle);
         }
-      }).addTo(map);
+        var circleLayers = L.layerGroup(circles).addTo(map);
+        var overlayMaps = {
+          "circleLayers": circleLayers
+        };
+        L.control.layers({}, overlayMaps).addTo(map);
+
+      }).error(function (err) { });
+      /* $http.get('data/cimissdata.json').success(function (data, status) {
+ 
+         for (var i = 0; i < data.rowCount; i++) {
+           var icon = new L.TextIcon(
+             {
+               temperature: data.DS[i].TEM,
+               rH: data.DS[i].rhu,
+               color: 'red',
+               windNum: parseInt((data.DS[i].WIN_S_Avg_2mi - 0.01) / 2),
+               windDirection: data.DS[i].WIN_D_Avg_2mi
+             }
+             );
+           var marker = L.marker([data.DS[i].Lat, data.DS[i].Lon], { icon: icon }).addTo(map);
+           markers.push(marker);
+           L.circleMarker({ lat: data.DS[i].Lat, lon: data.DS[i].Lon }, {
+             radius: 4,
+             fillColor: "#ff7800",
+             color: "#000",
+             weight: 1,
+             opacity: 1,
+             fillOpacity: 0.8
+           }).addTo(map);
+         }
+       });*/
     });
   }]);
+  

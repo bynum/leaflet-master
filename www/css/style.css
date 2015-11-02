@@ -1,0 +1,18 @@
+.leaflet-marker-icon .icon-text-temperature {
+	position: relative;
+	top: 0px;
+	left: 12px;
+	font-size: 12px;
+	color: red;
+	/*width: 25px;*/
+	/*text-align: center;*/
+}
+.leaflet-marker-icon .icon-text-rH {
+	position: relative;
+	top: -30px;
+	left: 25px;
+	font-size: 12px;
+	color: green;
+	/*width: 25px;*/
+	/*text-align: center;*/
+}
